@@ -56,7 +56,7 @@ public class ElasticsearchClient
         cm.setValidateAfterInactivity(1);
 
         cm.setDefaultSocketConfig(SocketConfig.custom()
-                .setSoTimeout(5000)
+                .setSoTimeout(10000)
                 .setSoLinger(0)
                 .setTcpNoDelay(true)
                 .build());
@@ -67,8 +67,8 @@ public class ElasticsearchClient
     private static HttpClient buildHttpClient()
     {
         RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(1500)
-                .setConnectionRequestTimeout(1500)
+                .setConnectTimeout(5000)
+                .setConnectionRequestTimeout(5000)
                 .build();
 
         CloseableHttpClient httpClient = HttpClients.custom()

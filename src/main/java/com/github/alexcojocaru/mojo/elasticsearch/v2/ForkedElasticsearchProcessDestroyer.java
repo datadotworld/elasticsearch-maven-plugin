@@ -5,7 +5,7 @@ import org.apache.maven.plugin.logging.Log;
 
 /**
  * Shutdown hook to stop the ES process on JVM shut down.
- * 
+ *
  * @author Alex Cojocaru
  */
 public class ForkedElasticsearchProcessDestroyer implements ProcessDestroyer
@@ -47,7 +47,7 @@ public class ForkedElasticsearchProcessDestroyer implements ProcessDestroyer
             }
         });
     }
-    
+
     @Override
     public boolean add(Process process)
     {
@@ -56,7 +56,7 @@ public class ForkedElasticsearchProcessDestroyer implements ProcessDestroyer
             throw new IllegalStateException(
                     "A process was already added; this Elasticsearch process destroyer does not support multiple processes");
         }
-        
+
         this.process = process;
         return true;
     }
@@ -65,8 +65,11 @@ public class ForkedElasticsearchProcessDestroyer implements ProcessDestroyer
     @Override
     public boolean remove(Process process)
     {
-        throw new IllegalStateException(
-                "This Elasticsearch process destroyer does not support this operation");
+        if (this.process != process) {
+            throw new IllegalStateException("Process to remove does not match currently configured process");
+        }
+        this.process = null;
+        return true;
     }
 
 

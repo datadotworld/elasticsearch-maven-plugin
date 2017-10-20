@@ -15,7 +15,7 @@ import com.github.alexcojocaru.mojo.elasticsearch.v2.util.ProcessUtil;
 
 /**
  * Start an ES instance and hold the reference to the ES {@link Process}.
- * 
+ *
  * @author Alex Cojocaru
  */
 public class ForkedInstance
@@ -37,12 +37,23 @@ public class ForkedInstance
     @Override
     public void run()
     {
-        FilesystemUtil.setScriptPermission(config, "elasticsearch");
+        try
+        {
+            FilesystemUtil.setScriptPermission(config, "elasticsearch");
 
-        ProcessUtil.executeScript(config,
+            ProcessUtil.executeScript(config,
                 getStartScriptCommand(),
                 null,
                 new ForkedElasticsearchProcessDestroyer(config));
+        }
+        catch (ElasticsearchSetupException e)
+        {
+            config.getClusterConfiguration().getLog().info(e.getMessage());
+        }
+        catch (Throwable e)
+        {
+            config.getClusterConfiguration().getLog().error(e);
+        }
     }
 
     private InstanceStepSequence getSetupSequence()
@@ -68,7 +79,7 @@ public class ForkedInstance
         		false);
         cmd.addArgument("-Ehttp.port=" + config.getHttpPort(), false);
         cmd.addArgument("-Etransport.tcp.port=" + config.getTransportPort(), false);
-        
+
         // If there are multiple nodes, I need to tell each about the other,
         // in order to form a cluster.
         List<String> hosts = config.getClusterConfiguration().getInstanceConfigurationList()
@@ -86,7 +97,7 @@ public class ForkedInstance
         {
             cmd.addArgument("-Eaction.auto_create_index=false", false);
         }
-        
+
         String pathScripts = config.getClusterConfiguration().getPathScripts();
         if (StringUtils.isNotBlank(pathScripts))
         {
